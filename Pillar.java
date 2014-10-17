@@ -10,7 +10,6 @@ import java.util.Set;
 public class Pillar {
 	private int x;
 	private int y;
-	private static int limit = 0;
 	
 	/**
 	 * Constructs a new pillar at position xCor and yCor
@@ -66,16 +65,8 @@ public class Pillar {
 	 * @throws IndexOutOfBoundsException	thrown if cor is lessthan 0 or greaterthan limit
 	 */
 	private void checkCoorValid(int cor) throws IndexOutOfBoundsException{
-		if(cor < 0 || cor > limit)
+		if(cor < 0)
 			throw new IndexOutOfBoundsException("Given coordinate is out of bounds");
-	}
-	
-	/**
-	 * Sets the limit of Pillar class to l
-	 * @param l		an integer that is the limit
-	 */
-	public static void setLimit(int l){
-		limit = l;
 	}
 	
 	/**
@@ -85,10 +76,10 @@ public class Pillar {
 	 * @param layout	the layout of the planks
 	 * @return	returns the adjoining pillars
 	 */
-	public List<Pillar> adjoiningPillars(boolean usePlank, Set<Plank> layout){
+	public List<Pillar> adjoiningPillars(boolean usePlank, Set<Plank> layout, int limit){
 		List<Pillar> adjoiningP = new LinkedList<Pillar>();
 		//get all adjacent pillars
-		List<Pillar> adjacentP = adjacentPillars();
+		List<Pillar> adjacentP = adjacentPillars(limit);
 		//check if each pillar is adjacent
 		for(Pillar p : adjacentP){
 			Plank conn = new Plank(this, p);
@@ -122,7 +113,7 @@ public class Pillar {
 	 * Gets all pillars adjacent to this one
 	 * @return	a list of adjacent pillars
 	 */
-	private List<Pillar> adjacentPillars() {
+	private List<Pillar> adjacentPillars(int limit) {
 		List<Pillar> allAdjP = new LinkedList<Pillar>();
 		Pillar p;
 		if(x != limit){

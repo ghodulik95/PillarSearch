@@ -13,7 +13,6 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		int n = 2;
-		Pillar.setLimit(n-1);
 		Set<Plank> layout = new HashSet<Plank>();
 		Pillar p1 = new Pillar(0,0);
 		Pillar p2 = new Pillar(1,0);

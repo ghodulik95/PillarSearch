@@ -7,7 +7,7 @@ import java.util.Set;
  *
  */
 public class Maze {
-	private int length;
+	private int maxCoordinate;
 	private Path curPath;
 	private Pillar curPil;
 	private Path shortest;
@@ -21,8 +21,7 @@ public class Maze {
 	ShortestPath(n, layout)*/
 	public Maze(int n, Set<Plank> layout){
 		/*	set limit of Pillar to n - 1*/
-		Pillar.setLimit(n - 1);
-		length = n - 1;
+		maxCoordinate = n - 1;
 	/*	Path start ← a new Path with no Pillars and a distance of -1*/
 		curPath = new Path();
 	/*	Path shortest ← a new Path with distance of infinite*/
@@ -63,7 +62,7 @@ public class Maze {
 		 * OR (if we are are not using a plank) For each Pillar P that is connected and adjacent to curPil do
 		*/
 		Pillar prev = curPil;
-		List<Pillar> adjoiningPillars = curPil.adjoiningPillars(usePlank, layout);
+		List<Pillar> adjoiningPillars = curPil.adjoiningPillars(usePlank, layout, maxCoordinate);
 		for(Pillar p : adjoiningPillars){
 			curPil = p;
 			if(usePlank){
