@@ -13,7 +13,7 @@ public class Test {
 	 */
 	public static void main(String[] args) {
 		int n = 2;
-		Pillar.setLimit(n);
+		Pillar.setLimit(n-1);
 		Set<Plank> layout = new HashSet<Plank>();
 		Pillar p1 = new Pillar(0,0);
 		Pillar p2 = new Pillar(1,0);
@@ -24,11 +24,12 @@ public class Test {
 		Plank pl2 = new Plank(p2, p4);
 		
 		layout.add(pl1);
-		layout.add(pl2);
+		//layout.add(pl2);
 		
-		Path s = (ShortestPath.shortestPath(n, layout));
+		Maze m = new Maze(n, layout);
+		Path s = (m.shortestPath(true));
 		
-		System.out.println(s.toString());
+		System.out.println(s.toString()+s.addedPlank.getPillars());
 		
 	}
 
