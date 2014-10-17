@@ -26,19 +26,17 @@
 	<target name="clean">
         <delete dir="bin"/>
     </target>
-    <!---
-    	If I had a runner file I would use this, but I don't!-->
 	<target name="run">
         <java classname="Test" failonerror="true" fork="yes">
             <classpath refid="maze.classpath"/>  <!--so we can find our compiled bits! !-->
         </java>
     </target> 
-	<target name="test">
+	<!--<target name="test">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="Test" todir="${junit.output.dir}"/>
             <classpath refid="maze.classpath"/>
         </junit>
-    </target>
+    </target>!-->
 </project>
