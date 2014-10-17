@@ -1,7 +1,11 @@
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * Shortest path code straight from psuedocode
+ * @author gmh73
+ *
+ */
 public class ShortestPath {
 	/*n is the length/width of the n x n layout of pillars
 	layout is the set of planks used
@@ -30,24 +34,24 @@ public class ShortestPath {
 	public static Path search(Pillar curPil, Path curPath, boolean hasPlank, 
 			Path shortest, int shortestDistance, Pillar endPillar, int n, Set<Plank> layout){
 	/*Add curPil to curPath*/
-		curPath.add(curPil);
-		Path isAtEnd = getPathIsAtEnd(curPil, endPillar, curPath, shortest);
-		if(isAtEnd != null)
-			return isAtEnd;
+		curPath.addPillar(curPil);
+		Path atLastPillar = pathAtLastPillar(curPil, endPillar, curPath, shortest);
+		if(atLastPillar != null)
+			return atLastPillar;
 	/*If hasPlank is true*/
 		if(hasPlank){
-			Path pPrime = searchAdjacent(curPil,curPath,true,shortest,shortestDistance,endPillar,n,layout,false);
+			Path pPrime = searchAdjoiningPillars(curPil,curPath,true,shortest,shortestDistance,endPillar,n,layout,false);
 			if(pPrime.isSameDistance(shortestDistance))
 				return pPrime;
 		}
-		Path pPrime = searchAdjacent(curPil,curPath,false,shortest,shortestDistance,endPillar,n,layout,hasPlank);
+		Path pPrime = searchAdjoiningPillars(curPil,curPath,false,shortest,shortestDistance,endPillar,n,layout,hasPlank);
 		if(pPrime.isSameDistance(shortestDistance))
 			return pPrime;
 	/*return shortest*/
 		return shortest;
 	}
 	
-	private static Path getPathIsAtEnd(Pillar curPil, Pillar endPillar,
+	private static Path pathAtLastPillar(Pillar curPil, Pillar endPillar,
 			Path curPath, Path shortest) {
 		/*If curPil is endPillar */
 		if(curPil.equals(endPillar))
@@ -60,13 +64,13 @@ public class ShortestPath {
 		return null;
 	}
 
-	private static Path searchAdjacent(Pillar curPil, Path curPath, boolean usePlank, 
+	private static Path searchAdjoiningPillars(Pillar curPil, Path curPath, boolean usePlank, 
 			Path shortest, int shortestDistance, Pillar endPillar, int n, Set<Plank> layout, boolean hasPlankAfter){
 		/*For each Pillar P that is unconnected (Plank between does not exist in layout), adjacent to curPil and not in curPath 
 		 * OR (if we are are not using a plank) For each Pillar P that is connected and adjacent to curPil do
 		*/
-		List<Pillar> adjacentPillars = curPil.adjacentPillars(usePlank, layout);
-		for(Pillar p : adjacentPillars){
+		List<Pillar> adjoiningPillars = curPil.adjoiningPillars(usePlank, layout);
+		for(Pillar p : adjoiningPillars){
 			if(usePlank){
 				/*Plank C ← a new Plank connecting curPil and P
 				Add C to curPath*/
@@ -93,7 +97,7 @@ public class ShortestPath {
 		/*If P’ has a shorter distance than shortest
 			shortest ← P’*/
 		if(pPrime.isShorterThan(shortest))
-			shortest.set(pPrime);
+			shortest.setPath(pPrime);
 		return null;
 	}
 }

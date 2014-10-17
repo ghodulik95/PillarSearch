@@ -10,13 +10,33 @@ import java.util.Set;
 public class Plank {
 	private Set<Pillar> connected;
 	
+	/**
+	 * Construct a pillar connecting p1 and p2
+	 * @param p1	a pillar
+	 * @param p2	another pillar
+	 */
 	public Plank(Pillar p1, Pillar p2){
+		checkIfNull(p1,p2);
 		Set<Pillar> conn = new HashSet<Pillar>();
 		conn.add(p1);
 		conn.add(p2);
 		connected = conn;
 	}
 	
+	/**
+	 * Checks if pillars are null
+	 * @param p1	a pillar
+	 * @param p2	a pillar
+	 */
+	private void checkIfNull(Pillar p1, Pillar p2) {
+		if(p1 == null || p2 == null)
+			throw new NullPointerException("Given pillar is null");
+	}
+	
+	/**
+	 * returns the set of connected pillars
+	 * @return	returns set of connected pillars
+	 */
 	public Set<Pillar> getPillars(){
 		return connected;
 	}

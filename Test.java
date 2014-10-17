@@ -1,7 +1,11 @@
 import java.util.HashSet;
 import java.util.Set;
 
-
+/**
+ * A very simple test case where n = 2
+ * @author gmh73
+ *
+ */
 public class Test {
 
 	/**
@@ -20,7 +24,7 @@ public class Test {
 		Plank pl2 = new Plank(p2, p4);
 		
 		layout.add(pl1);
-		//layout.add(pl2);
+		layout.add(pl2);
 		
 		Path s = (ShortestPath.shortestPath(n, layout));
 		
