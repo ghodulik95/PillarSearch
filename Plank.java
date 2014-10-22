@@ -55,4 +55,14 @@ public class Plank {
 	public int hashCode(){
 		return connected.hashCode();
 	}
+	
+	/**
+	 * A test button for junit testing
+	 * @author gmh73
+	 */
+	public class TestButton{
+		public void testCheckIfNull(Pillar p1, Pillar p2){
+			Plank.this.checkIfNull(p1, p2);
+		}
+	}
 }

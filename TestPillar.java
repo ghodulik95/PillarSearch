@@ -8,6 +8,12 @@ import java.util.Set;
 import org.junit.Test;
 import org.junit.Before;
 
+/**
+ * Exhaustive testing on Pillar Class.
+ * @author gmh73
+ *
+ */
+
 public class TestPillar {
 	Pillar p;
 	Pillar.TestButton t;
