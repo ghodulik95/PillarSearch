@@ -44,7 +44,7 @@ public class Pillar {
 	 * @param p A pillar
 	 * @return returns true if pillars are adjacent
 	 */
-	public boolean isAdjectedTo(Pillar p){
+	public boolean isAdjacentTo(Pillar p){
 		return shortestDistanceTo(p) == 1;
 	}
 	
@@ -77,6 +77,8 @@ public class Pillar {
 	 * @return	returns the adjoining pillars
 	 */
 	public List<Pillar> adjoiningPillars(boolean usePlank, Set<Plank> layout, int limit){
+		checkNull(layout);
+		checkLimit(limit);
 		List<Pillar> adjoiningP = new LinkedList<Pillar>();
 		//get all adjacent pillars
 		List<Pillar> adjacentP = adjacentPillars(limit);
@@ -88,6 +90,25 @@ public class Pillar {
 			}
 		}
 		return adjoiningP;
+	}
+	
+	/**
+	 * Throws exception if the limit < either x or y coordinate
+	 * @param limit		a specified maze limit
+	 */
+	private void checkLimit(int limit) {
+		if(limit < 0 || this.getXCor() > limit || this.getYCor() > limit){
+			throw new IndexOutOfBoundsException("The given limit is less than the coordinate of this pillar.");
+		}
+	}
+	
+	/**
+	 * Throws an exception if the layout set is null
+	 * @param layout	a set of planks
+	 */
+	private void checkNull(Set<Plank> layout){
+		if(layout == null)
+			throw new NullPointerException("Given input is null");
 	}
 	
 	/**
@@ -146,12 +167,37 @@ public class Pillar {
 	
 	@Override
 	public int hashCode(){
-		return 57*x + 23*y;
+		Integer xh = x;
+		Integer yh = y;
+		return 2*xh.hashCode() + 3*yh.hashCode();
 	}
 	
 	@Override
 	public String toString(){
 		return "("+x+","+y+")";
+	}
+	
+	/**
+	 * A test button to test the private methods
+	 * @author gmh73
+	 *
+	 */
+	public class TestButton{
+		public void testCheckCoorValid(int coor){
+			Pillar.this.checkCoorValid(coor);
+		}
+		public List<Pillar> testAdjacentPillars(int limit){
+			return Pillar.this.adjacentPillars(limit);
+		}
+		public boolean testConnectionAdjoined(boolean usePlank, Plank conn, Set<Plank> layout){
+			return Pillar.this.connectionAdjoined(usePlank, conn, layout);
+		}
+		public void testCheckNull(Set<Plank> layout){
+			Pillar.this.checkNull(layout);
+		}
+		public void testCheckLimit(int limit){
+			Pillar.this.checkLimit(limit);
+		}
 	}
 	
 }

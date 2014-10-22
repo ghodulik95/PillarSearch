@@ -37,7 +37,7 @@ public class Path {
 	 * @param p a pillar
 	 */
 	public void addPillar(Pillar p){
-		if(ppath.isEmpty() || p.isAdjectedTo(lastPillar())){
+		if(ppath.isEmpty() || p.isAdjacentTo(lastPillar())){
 			ppath.add(p);
 			pillars.add(p);
 			distance++;
