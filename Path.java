@@ -37,11 +37,21 @@ public class Path {
 	 * @param p a pillar
 	 */
 	public void addPillar(Pillar p){
-		if(ppath.isEmpty() || p.isAdjacentTo(lastPillar())){
+		checkNull(p);
+		if((ppath.isEmpty() || p.isAdjacentTo(lastPillar())) && !pillars.contains(p)){
 			ppath.add(p);
 			pillars.add(p);
 			distance++;
 		}
+	}
+	
+	/**
+	 * Throws an exception if o is null
+	 * @param o		an input
+	 */
+	private void checkNull(Object o){
+		if(o == null)
+			throw new NullPointerException("Given input is null.");
 	}
 	
 	/**
@@ -88,15 +98,20 @@ public class Path {
 			distance = Integer.MAX_VALUE;
 	}
 	
+	/*
 	/**
 	 * Sets this path to the given path
 	 * @param p	 a path
-	 */
+	 
 	public void setPath(Path p){
 		distance = p.distance;
 		pillars = p.pillars;
 		ppath = p.ppath;
 		addedPlank = p.addedPlank;
+	}*/
+	
+	public boolean containsPillar(Pillar p){
+		return pillars.contains(p);
 	}
 	
 	/**
@@ -115,7 +130,7 @@ public class Path {
 	 * Adds a plank to this path
 	 * @param pl	 a plank
 	 */
-	public void addPlank(Plank pl){
+	public void setPlank(Plank pl){
 		addedPlank = pl;
 	}
 	
@@ -131,15 +146,60 @@ public class Path {
 	 * @return	the last pillar in the path
 	 */
 	public Pillar lastPillar(){
-		return ppath.get(ppath.size() - 1);
+		if(!ppath.isEmpty())
+			return ppath.get(ppath.size() - 1);
+		else
+			return null;
+	}
+	
+	/**
+	 * gets the added plank of this path, or null if there is none
+	 * @return the added plank in this path, or null if there is none
+	 */
+	public Plank getPlank(){
+		return addedPlank;
 	}
 	
 	@Override
 	public String toString(){
 		String out = "";
+		boolean first = true;
 		for(Pillar p : ppath){
-			out += p.toString() + " --> ";
+			if(!first)
+				out += " --> ";
+			out += p.toString();
+			first = false;
 		}
 		return out;
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		if(o instanceof Path){
+			Path p = (Path) o;
+			boolean distEqual = p.distance == this.distance;
+			boolean samePlank = false;
+			try{
+				samePlank = p.addedPlank.equals(this.addedPlank);
+			}catch(NullPointerException ne){
+				samePlank = p.addedPlank == this.addedPlank;
+			}
+			if(distEqual && samePlank){
+				return ppath.equals(p.ppath); 
+			}
+		}
+		return false;
+	}
+	
+	public class TestButton{
+		public Set<Pillar> getPillars(){
+			return Path.this.pillars;
+		}
+		public List<Pillar> getPPath(){
+			return Path.this.ppath;
+		}
+		public void testCheckNull(Object o){
+			Path.this.checkNull(o);
+		}
 	}
 }
