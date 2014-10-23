@@ -40,7 +40,6 @@ public class Maze {
 	
 	public Path shortestPath(boolean hasPlank) {
 		/*Add curPil to curPath*/
-		curPath.addPillar(curPil);
 		Path atLastPillar = pathAtLastPillar();
 		if(atLastPillar != null)
 			return atLastPillar;
@@ -69,7 +68,7 @@ public class Maze {
 				/*Plank C ← a new Plank connecting curPil and P
 				Add C to curPath*/
 				Plank c = new Plank(curPil, prev);
-				curPath.addPlank(c);
+				curPath.setPlank(c);
 			}
 			/*Path P’ ← search(P, curPath, hasPlankAfter, shortest, shortestDistance, endPillar, n, layout)*/
 			Path pPrime = shortestPath(hasPlankAfter);
@@ -95,6 +94,9 @@ public class Maze {
 		if(!curPath.isShorterThan(shortest))
 			/*return shortest*/
 			return shortest;
+		if(curPath.containsPillar(curPil))
+			return shortest;
+		curPath.addPillar(curPil);
 		return null;
 	}
 
