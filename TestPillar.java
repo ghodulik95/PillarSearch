@@ -26,6 +26,8 @@ public class TestPillar {
 	public void constructGoodData(){
 		p = new Pillar(1,1);
 		t = p.new TestButton();
+		assertEquals(p.getXCor(), 1);
+		assertEquals(p.getYCor(), 1);
 	}
 	
 	/**
