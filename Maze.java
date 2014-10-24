@@ -14,11 +14,15 @@ public class Maze {
 	private int shortestDistance;
 	private Pillar endPillar;
 	private Set<Plank> layout;
+	private Pillar startPillar;
 	
-
-	/*n is the length/width of the n x n layout of pillars
-	layout is the set of planks used
-	ShortestPath(n, layout)*/
+	/**
+	 * Constructor for Maze Class
+	 * @param n the length and width of grid of pillars
+	 * @param layout	the set of planks in the grid
+	 * @param start		the start point 
+	 * @param end		the end point
+	 */
 	public Maze(int n, Set<Plank> layout, Pillar start, Pillar end){
 		checkInitInput(n,layout);
 		/*	set limit of Pillar to n - 1*/
@@ -30,6 +34,7 @@ public class Maze {
 		shortest.setDistanceToInfinite();
 	/*	Pillar curPil ← the initial pillar (presumably at (0,0) based on assignment desc)*/
 		curPil = start;
+		startPillar = start;
 	/*	hasPlank ← true*/
 	/*calculate the shortest possible distance from the start pillar to the end pillar and store it in variable shortestDistance
 	make a new Pillar endPillar that is the end destination*/
@@ -50,12 +55,20 @@ public class Maze {
 	}
 	
 	/**
+	 * Resets the search values
+	 */
+	public void resetShortestPath(){
+		curPil = startPillar;
+		curPath = new Path();
+	}
+	
+	/**
 	 * Throws exception if n < 0 or layout == null
 	 * @param n throws IndexOutOfBoundsException if n < 0
 	 * @param layout throws NullPointerException if layout == null
 	 */
 	private void checkInitInput(int n, Set<Plank> layout){
-		if(n < 0)
+		if(n < 1)
 			throw new IndexOutOfBoundsException("Given maze size < 0.");
 		if(layout == null)
 			throw new NullPointerException("Given layout is null.");
@@ -158,6 +171,9 @@ public class Maze {
 		public Set<Plank> getLayout(){
 			return Maze.this.layout;
 		}
+		public Pillar getStart(){
+			return Maze.this.startPillar;
+		}
 		public Path testSearchAdjoiningPillars(Pillar start, Pillar end, boolean usePlank, boolean hasPlankAfter){
 			Path curPathCopy = Maze.this.curPath;
 			Pillar curPilCopy = Maze.this.curPil;
@@ -183,14 +199,13 @@ public class Maze {
 			
 			return out;
 		}
-		public Path testPathAtLastPillar(Pillar start, Pillar middle, Pillar end, Path shortestPath){
+		public Path testPathAtLastPillar(Pillar middle, Pillar end, Path curPath, Path shortestPath){
 			Path curPathCopy = Maze.this.curPath;
 			Pillar curPilCopy = Maze.this.curPil;
 			Path shortestCopy = Maze.this.shortest;
 			Pillar endPillarCopy = Maze.this.endPillar;
 			
-			Maze.this.curPath = new Path();
-			Maze.this.curPath.addPillar(start);
+			Maze.this.curPath = curPath;
 			Maze.this.curPil = middle;
 			Maze.this.shortest = shortestPath;
 			Maze.this.endPillar = end;
@@ -203,6 +218,28 @@ public class Maze {
 			Maze.this.endPillar = endPillarCopy;
 			
 			return out;
+		}
+		public Path[] testCheckIfResultShortest(Path pPrime, Path shortest, int shortestDistance){
+			Path curPathCopy = Maze.this.curPath;
+			Path shortestCopy = Maze.this.shortest;
+			int shortestDistanceCopy = Maze.this.shortestDistance;
+			
+			Maze.this.curPath = curPath;
+			Maze.this.shortest = shortest;
+			Maze.this.shortestDistance = shortestDistance;
+			
+			Path[] ret = new Path[2];
+			ret[0] = Maze.this.checkIfResultShortest(pPrime);
+			ret[1] = Maze.this.shortest;
+					
+			Maze.this.curPath = curPathCopy;
+			Maze.this.shortest = shortestCopy;
+			Maze.this.shortestDistance = shortestDistanceCopy;
+			
+			return ret;
+		}
+		public void testCheckInitInput(int n, Set<Plank> layout){
+			Maze.this.checkInitInput(n,layout);
 		}
 	}
 }

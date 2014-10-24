@@ -2,6 +2,7 @@ import static org.junit.Assert.*;
 import java.util.Random;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,9 @@ public class TestMaze {
 	private Random r;
 	private Path expectedShortest;
 	
+	/**
+	 * Initialize variables for testing
+	 */
 	@Before
 	public void initialize(){
 		n = 10;
@@ -26,6 +30,29 @@ public class TestMaze {
 		buildLayout(n,0,false);
 		m = new Maze(n, layout);
 		t = m.new TestButton();
+	}
+	
+	/**
+	 * Structural Basis
+	 * Nominal Cases test constructor
+	 */
+	@Test
+	public void testConstructor(){
+		assertEquals(n, t.getMaxCoordinate() +1);
+		assertEquals(layout, t.getLayout());
+		assertEquals(new Pillar(0,0), t.getCurPil());
+		assertEquals(new Pillar(0,0), t.getStart());
+		assertEquals(new Pillar(n-1,n-1), t.getEndPillar());
+		
+		Pillar start = new Pillar(2,2);
+		Pillar end = new Pillar(3,4);
+		m = new Maze(n,layout, start, end);
+		t = m.new TestButton();
+		assertEquals(n, t.getMaxCoordinate() +1);
+		assertEquals(layout, t.getLayout());
+		assertEquals(start, t.getCurPil());
+		assertEquals(start, t.getStart());
+		assertEquals(end, t.getEndPillar());
 	}
 	
 	/**
@@ -52,24 +79,102 @@ public class TestMaze {
 		assertEquals(expectedShortest, m.shortestPath(true));
 	}
 	
+	/**
+	 * Stress test where n and density are both middle-ish values
+	 */
+	@Test
+	public void stressTestMiddleOfTheRoad(){
+		resetLayout();
+		n = 400;
+		buildLayout(n, 0.38, true);
+		resetMaze();
+		Path shortest = m.shortestPath(true);
+		Pillar end = new Pillar(n-1,n-1);
+		assertTrue(expectedShortest.isSameDistance(shortest));
+		assertTrue(pathIsValid(shortest,end));
+	}
+	
+	/**
+	 * Stress test where n is quite large and the graph is quite sparse
+	 */
+	@Test
+	public void stressTestLargeNSparseGraph(){
+		resetLayout();
+		n = 2500;
+		buildLayout(n, 0.1, true);
+		resetMaze();
+		Path shortest = m.shortestPath(true);
+		Pillar end = new Pillar(n-1,n-1);
+		assertTrue(expectedShortest.isSameDistance(shortest));
+		assertTrue(pathIsValid(shortest,end));
+	}
+	
+	/**
+	 * Stress test where n is small but graph is dense
+	 */
+	@Test
+	public void stressTestSmallNDenseGraph(){
+		resetLayout();
+		n = 40;
+		buildLayout(n, 0.85, true);
+		resetMaze();
+		Path shortest = m.shortestPath(true);
+		Pillar end = new Pillar(n-1,n-1);
+		assertTrue(expectedShortest.isSameDistance(shortest));
+		assertTrue(pathIsValid(shortest,end));
+	}
+	
+	/**
+	 * Goes through a path and makes sure it makes it step by step to the end
+	 * @param shortest
+	 * @return
+	 */
+	private boolean pathIsValid(Path shortest, Pillar end) {
+		Path.TestButton pt = shortest.new TestButton();
+		List<Pillar> ppath = pt.getPPath();
+		Iterator<Pillar> i = ppath.iterator();
+		Pillar prev = i.next();
+		while(i.hasNext()){
+			Pillar curr = i.next();
+			if(curr.shortestDistanceTo(prev) != 1){
+				return false;
+			}
+			prev = curr;
+		}
+		return prev.equals(end);
+	}
+
+	/**
+	 * Reset the layout to an empty set
+	 * Expected shortest must also be reset since it is reliant on layout
+	 */
 	public void resetLayout(){
 		layout = new HashSet<Plank>();
 		expectedShortest = new Path();
 	}
 	
 	/**
+	 * Reset maze to a new maze
+	 * Must rest t as well since it corresponds to m
+	 */
+	public void resetMaze(){
+		m = new Maze(n,layout);
+		t = m.new TestButton();
+	}
+	
+	/**
 	 * Bad data -- layout == null
 	 */
 	@Test(expected=NullPointerException.class)
-	public void testShortestPathWhenNull(){
+	public void testConstructorWhenNull(){
 		m = new Maze(n, null);
 	}
 	
 	/**
-	 * Bad data -- n < 0
+	 * Bad data -- n < 1
 	 */
 	@Test(expected=IndexOutOfBoundsException.class)
-	public void testShortestPathWhenNeg(){
+	public void testConstructorWhenNeg(){
 		m = new Maze(-1, layout);
 	}
 	
@@ -116,7 +221,33 @@ public class TestMaze {
 		expectedShortest.setDistanceToInfinite();
 		assertEquals(expectedShortest, m.shortestPath(false));
 	}
-
+	
+	/**
+	 * Structural Basis, Boundary Case
+	 * Maze is only one pillar
+	 */
+	@Test
+	public void testShortestPathWhenMazeIsOne(){
+		//reset layout to a new set
+		resetLayout();
+		m = new Maze(1, layout);
+		expectedShortest = new Path();
+		expectedShortest.addPillar(new Pillar(0,0));
+		assertEquals(expectedShortest, m.shortestPath(false));
+		m.resetShortestPath();
+		assertEquals(expectedShortest, m.shortestPath(true));
+	}
+	
+	/**
+	 * Structured Basis
+	 * Nominal Case
+	 */
+	@Test
+	public void testReset(){
+		m.resetShortestPath();
+		assertEquals(new Pillar(0,0), t.getCurPil());
+		assertEquals(new Path(), t.getCurPath());
+	}
 
 	public void buildLayout(int n2, double density, boolean usePlank){
 		Pillar lastPillar = new Pillar(0,0);
@@ -164,8 +295,7 @@ public class TestMaze {
 	@Test
 	public void testAdjoiningPillarsWhenNoAdjoining(){
 		resetLayout();
-		m = new Maze(n,layout);
-		t = m.new TestButton();
+		resetMaze();
 		expectedShortest = new Path();
 		expectedShortest.setDistanceToInfinite();
 		Pillar start = new Pillar(3,3);
@@ -189,8 +319,7 @@ public class TestMaze {
 		Pillar middle = new Pillar(3,4);
 		Pillar end = new Pillar(3,5);
 		layout.add(new Plank(start,middle));
-		m = new Maze(n,layout);
-		t = m.new TestButton();
+		resetMaze();
 		expectedShortest = new Path();
 		expectedShortest.setDistanceToInfinite();
 		//Even though there are some adjoining pillars, there is no viable path
@@ -217,8 +346,7 @@ public class TestMaze {
 		Pillar middle = new Pillar(3,4);
 		Pillar end = new Pillar(3,5);
 		layout.add(new Plank(start,middle));
-		m = new Maze(n,layout);
-		t = m.new TestButton();
+		resetMaze();
 		expectedShortest = new Path();
 		expectedShortest.setDistanceToInfinite();
 		//There is a possible path using a plank, but not a plank from start
@@ -253,8 +381,149 @@ public class TestMaze {
 		assertEquals(expectedShortest, t.testSearchAdjoiningPillars(start, end, true, false));
 	}
 	
+	/**
+	 * Structural Basis
+	 * First condition true, curPath contains pillar
+	 */
 	@Test
-	public void testPathAtLastPillar(){
+	public void testPathAtLastPillarCurPathContainsPillar(){
+		Pillar start = new Pillar(3,3);
+		Pillar middle = new Pillar(3,4);
+		Pillar end = new Pillar(3,5);
+		Path curPath = new Path();
+		curPath.addPillar(start);
+		curPath.addPillar(middle);
+		assertEquals(expectedShortest, t.testPathAtLastPillar(middle, end, curPath, expectedShortest));
+	}
+	
+	/**
+	 * Structural Basis
+	 * First condition false, curPath does not contains pillar
+	 * Second condition true, curPil is endPillar
+	 */
+	@Test
+	public void testPathAtLastPillarAtEndPillar(){
+		Pillar start = new Pillar(3,3);
+		Pillar middle = new Pillar(3,4);
+		Pillar end = new Pillar(3,5);
+		Path curPath = new Path();
+		curPath.addPillar(start);
+		curPath.addPillar(middle);
+		expectedShortest = new Path();
+		expectedShortest.addPillar(start);
+		expectedShortest.addPillar(middle);
+		expectedShortest.addPillar(end);
+		assertEquals(expectedShortest, t.testPathAtLastPillar(end, end, curPath, new Path()));
+	}
+	
+	/**
+	 * Structural Basis
+	 * First condition false, curPath does not contains pillar
+	 * Second condition false, curPil is not endPillar
+	 * Third condition is true, curPath is not shorter than shortest
+	 */
+	@Test
+	public void testPathAtLastPillarNotShorter(){
+		Pillar start = new Pillar(3,3);
+		Pillar middle = new Pillar(3,4);
+		Pillar end = new Pillar(3,5);
+		Path curPath = new Path();
+		curPath.addPillar(start);
+		assertEquals(new Path(), t.testPathAtLastPillar(middle, end, curPath, new Path()));
+	}
+	
+	/**
+	 * Structural Basis
+	 * First condition false, curPath does not contains pillar
+	 * Second condition false, curPil is not endPillar
+	 * Third condition is false, curPath is  shorter than shortest
+	 */
+	@Test
+	public void testPathAtLastPillarShorter(){
+		Pillar start = new Pillar(3,3);
+		Pillar middle = new Pillar(3,4);
+		Pillar end = new Pillar(3,5);
+		Path curPath = new Path();
+		curPath.addPillar(start);
+		Path longer = new Path();
+		longer.addPillar(start);
+		longer.addPillar(middle);
+		longer.addPillar(end);
+		assertEquals(null, t.testPathAtLastPillar(middle, end, curPath, longer));
+	}
+	
+	/**
+	 * Structured Basis
+	 * First condition is true, pPrime is the same distance as shortestDistance
+	 */
+	@Test
+	public void testCheckIfResultShortestWhenIsShortest(){
+		Path pPrime = new Path();
+		pPrime.addPillar(new Pillar(0,0));
+		pPrime.addPillar(new Pillar(0,1));
+		Path[] ret = t.testCheckIfResultShortest(pPrime, expectedShortest, 1);
+		assertEquals(pPrime, ret[0]);
+		assertEquals(expectedShortest, ret[1]);
+	}
+	
+	/**
+	 * Structured Basis
+	 * First condition is false, pPrime is not the same distance as shortestDistance
+	 * Second condition is true, pPrime is shorter than shortest path
+	 */
+	@Test
+	public void testCheckIfResultShortestWhenShorter(){
+		Path pPrime = new Path();
+		pPrime.addPillar(new Pillar(0,0));
+		pPrime.addPillar(new Pillar(0,1));
+		Path[] ret = t.testCheckIfResultShortest(pPrime, expectedShortest, 0);
+		assertEquals(null, ret[0]);
+		assertEquals(pPrime, ret[1]);
+	}
+	
+	/**
+	 * Structured Basis
+	 * First condition is false, pPrime is not the same distance as shortestDistance
+	 * Second condition is false, pPrime is not shorter than shortest path
+	 */
+	@Test
+	public void testCheckIfResultShortestWhenNotShorter(){
+		Path pPrime = new Path();
+		pPrime.addPillar(new Pillar(0,0));
+		pPrime.addPillar(new Pillar(0,1));
+		Path shortest = new Path();
+		shortest.addPillar(new Pillar(1,1));
 		
+		Path[] ret = t.testCheckIfResultShortest(pPrime, shortest, 0);
+		assertEquals(null, ret[0]);
+		assertEquals(shortest, ret[1]);
+	}
+	
+	/**
+	 * Structured Basis
+	 * Both conditions true, inputs are good
+	 */
+	@Test
+	public void testCheckInitInputGoodData(){
+		t.testCheckInitInput(n, layout);
+	}
+	
+	/**
+	 * Structured Basis
+	 * layout is null
+	 */
+	@Test(expected=NullPointerException.class)
+	public void testCheckInitInputNullLayout(){
+		t.testCheckInitInput(n, null);
+	}
+	
+	/**
+	 * Structured Basis
+	 * n is negative/0
+	 */
+	@Test(expected=IndexOutOfBoundsException.class)
+	public void testCheckInitInputWhenNeg(){
+		t.testCheckInitInput(-1, layout);
+		t.testCheckInitInput(0, layout);
 	}
 }

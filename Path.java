@@ -99,18 +99,6 @@ public class Path {
 			distance = Integer.MAX_VALUE;
 	}
 	
-	/*
-	/**
-	 * Sets this path to the given path
-	 * @param p	 a path
-	 
-	public void setPath(Path p){
-		distance = p.distance;
-		pillars = p.pillars;
-		ppath = p.ppath;
-		addedPlank = p.addedPlank;
-	}*/
-	
 	public boolean containsPillar(Pillar p){
 		return pillars.contains(p);
 	}
@@ -210,6 +198,7 @@ public class Path {
 		while(i.hasNext()){
 			r.addPillar(i.next());
 		}
+		r.setPlank(this.getPlank());
 		return r;
 	}
 }
