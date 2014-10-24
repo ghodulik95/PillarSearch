@@ -38,6 +38,7 @@
             <test name="TestPillar" todir="${junit.output.dir}"/>
             <test name="TestPlank" todir="${junit.output.dir}"/>
             <test name="TestPath" todir="${junit.output.dir}"/>
+            <test name="TestMaze" todir="${junit.output.dir}"/>
             <classpath refid="maze.classpath"/>
         </junit>
     </target>
