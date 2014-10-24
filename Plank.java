@@ -71,6 +71,11 @@ public class Plank {
 	 * @author gmh73
 	 */
 	public class TestButton{
+		/**
+		 * Calls checkIfNull
+		 * @param p1	a pillar
+		 * @param p2	a pillar
+		 */
 		public void testCheckIfNull(Pillar p1, Pillar p2){
 			Plank.this.checkIfNull(p1, p2);
 		}

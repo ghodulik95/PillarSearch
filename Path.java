@@ -166,32 +166,61 @@ public class Path {
 	public boolean equals(Object o){
 		if(o instanceof Path){
 			Path p = (Path) o;
+			//Check if distances are equs
 			boolean distEqual = p.distance == this.distance;
 			boolean samePlank = false;
+			//Checking is the addedPlanks are equal is tricky
+			//Because one or both may be null, so thats why I have the try/catch
 			try{
+				//If both planks are initialized, check if they are equal
 				samePlank = p.addedPlank.equals(this.addedPlank);
 			}catch(NullPointerException ne){
+				//If one of the planks are not initilialized, call with ==
+				//so that if they are both null, they are technically equal
 				samePlank = p.addedPlank == this.addedPlank;
 			}
+			//If the distance is the same and the plank is the same
 			if(distEqual && samePlank){
+				//check if the list of pillars are the same
 				return ppath.equals(p.ppath); 
 			}
 		}
 		return false;
 	}
 	
+	/**
+	 * A test button for testing
+	 * @author gmh73
+	 *
+	 */
 	public class TestButton{
+		/**
+		 * Returns the pillars of this path
+		 * @return
+		 */
 		public Set<Pillar> getPillars(){
 			return Path.this.pillars;
 		}
+		/**
+		 * Returns the ppath of this path
+		 * @return
+		 */
 		public List<Pillar> getPPath(){
 			return Path.this.ppath;
 		}
+		/**
+		 * Calls checkNull on o
+		 * @param o		an object
+		 */
 		public void testCheckNull(Object o){
 			Path.this.checkNull(o);
 		}
 	}
 
+	/**
+	 * Returns a copy of this path
+	 * @return	a copy of this path
+	 */
 	public Path copy() {
 		Path r = new Path();
 		Iterator<Pillar> i = ppath.listIterator();

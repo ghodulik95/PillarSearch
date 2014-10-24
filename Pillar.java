@@ -132,23 +132,28 @@ public class Pillar {
 
 	/**
 	 * Gets all pillars adjacent to this one
+	 * Will always return a list of 2 to 4 pillars
 	 * @return	a list of adjacent pillars
 	 */
 	private List<Pillar> adjacentPillars(int limit) {
 		List<Pillar> allAdjP = new LinkedList<Pillar>();
 		Pillar p;
+		//If we are not at the limit for x, x + 1 exists and is adjacent
 		if(x != limit){
 			p = new Pillar(x + 1, y);
 			allAdjP.add(p);
 		}
+		//If we are not at the limit for y, y + 1 exists and is adjacent
 		if(y != limit){
 			p = new Pillar(x, y+1);
 			allAdjP.add(p);
 		}
+		//If we are not at 0 for x, x - 1 exists and is adjacent
 		if(x != 0){
 			p = new Pillar(x - 1, y);
 			allAdjP.add(p);
 		}
+		//If we are not at 0 for y, y - 1 exists and is adjacent
 		if(y != 0){
 			p = new Pillar(x, y-1);
 			allAdjP.add(p);

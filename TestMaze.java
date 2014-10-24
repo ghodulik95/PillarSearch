@@ -3,7 +3,6 @@ import java.util.Random;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +16,97 @@ public class TestMaze {
 	private Set<Plank> layout;
 	private Random r;
 	private Path expectedShortest;
+	
+	//Private methods for building random plank layouts
+
+	/**
+	 * Builds a layout with a shortest path to the last pillar (0,0) -> (n2-1,n2-1)
+	 * Adds random planks to afterward in proportion to density ( 0 <= density <= ~1 )
+	 * But note that density should not be too close to 1, because density * max edges planks
+	 * are added to the layout, so if density = 1, there will be more edges added than possible (which will run an infinite loop)
+	 * Also, if usePlank is true, one plank will be omitted from the shortest path
+	 * @param n2	the length of the grid
+	 * @param density	the density of the graph
+	 * @param usePlank	whether or not a plank will be required for the shortest path
+	 */
+	private void buildLayout(int n2, double density, boolean usePlank){
+		Pillar lastPillar = new Pillar(0,0);
+		expectedShortest.addPillar(lastPillar);
+		//Add pillars to the layout until a shortest path is made
+		for(int i = 0; i < 2*(n2 - 1) ; i++){
+			Pillar nextPillar = addPillarToShortestPath(n2, i, lastPillar, usePlank);
+			lastPillar = nextPillar;
+		}
+		
+		//Add more planks proportional to density
+		int edgesToAdd = (int) Math.floor( ((((n2 - 1)*n2)^2) * 1.0) * density);
+		for(int i = 0; i < edgesToAdd; i++){
+			Pillar start = new Pillar(r.nextInt(n2), r.nextInt(n2));
+			//Find adjacent pillars (this is a hackey way of doing it using adjoining pillar)
+			List<Pillar> adjacent = start.adjoiningPillars(true, new HashSet<Plank>(), n2-1);
+			//Randomly choose the connected Pillar from the adjacent
+			int choose = r.nextInt(adjacent.size());
+			Pillar end = adjacent.get(choose);
+			Plank toAdd = new Plank(start,end);
+			//Only add the plank if it is not already in layout
+			if(layout.contains(toAdd)){
+				i--;
+			}else{
+				layout.add(toAdd);
+			}
+		}
+	}
+	
+	/**
+	 * Adds a pillar to the shortest path being built
+	 * @param n2	the length of the grid
+	 * @param i		current iteration of loop (used solely to omit a plank when usePlank is true)
+	 * @param lastPillar	The last pillar currently in the path being built
+	 * @param usePlank	whether or not a plank will be omitted in the shortest path
+	 * @return
+	 */
+	private Pillar addPillarToShortestPath(int n2, int i, Pillar lastPillar, boolean usePlank){
+		//Get the next pillar and build a plank for it
+		Pillar nextPillar = chooseNextPillar(n2, lastPillar);
+		Plank p = new Plank(lastPillar, nextPillar);
+		//If we are not to omit this plank, add it
+		if(!(usePlank && i == n2/2)){
+			layout.add(p);
+		}
+		//if we are at n2/2 in the path and we are using a plank, this plank will be omitted
+		//so we set the plank in expected shortest to this one
+		else{
+			expectedShortest.setPlank(p);
+		}
+		//Add this pillar to the expected shortest
+		expectedShortest.addPillar(nextPillar);
+		return nextPillar;
+	}
+	
+	/**
+	 * Choose a pillar that will be next in the shortest Path
+	 * @param n2 The length of the grid
+	 * @param lastPillar	the last pillar in the path that is being built
+	 * @return	returns the next pillar in the path
+	 */
+	private Pillar chooseNextPillar(int n2, Pillar lastPillar){
+		Pillar nextPillar = null;
+		//If neither x nor y have reached the edge, then randomly choose
+		//a next pillar that is either the next x or the next y
+		if(lastPillar.getXCor() < n2 - 1 && lastPillar.getYCor() < n2 -1){
+			nextPillar = r.nextBoolean() ? new Pillar(lastPillar.getXCor() + 1, lastPillar.getYCor()) :
+											new Pillar(lastPillar.getXCor(), lastPillar.getYCor() + 1);
+		}
+		//If x has reached the edge of the grid, then increase y
+		else if(lastPillar.getXCor() < n2 - 1){
+			nextPillar = new Pillar(lastPillar.getXCor() + 1, lastPillar.getYCor());
+		}
+		//If y has reached the edge of the grid, then increase x
+		else if(lastPillar.getYCor() < n2 - 1){
+			nextPillar = new Pillar(lastPillar.getXCor() , lastPillar.getYCor() + 1);
+		}
+		return nextPillar;
+	}
 	
 	/**
 	 * Initialize variables for testing
@@ -80,27 +170,12 @@ public class TestMaze {
 	}
 	
 	/**
-	 * Stress test where n and density are both middle-ish values
-	 */
-	@Test
-	public void stressTestMiddleOfTheRoad(){
-		resetLayout();
-		n = 400;
-		buildLayout(n, 0.38, true);
-		resetMaze();
-		Path shortest = m.shortestPath(true);
-		Pillar end = new Pillar(n-1,n-1);
-		assertTrue(expectedShortest.isSameDistance(shortest));
-		assertTrue(pathIsValid(shortest,end));
-	}
-	
-	/**
 	 * Stress test where n is quite large and the graph is quite sparse
 	 */
 	@Test
 	public void stressTestLargeNSparseGraph(){
 		resetLayout();
-		n = 2500;
+		n = 1000;
 		buildLayout(n, 0.1, true);
 		resetMaze();
 		Path shortest = m.shortestPath(true);
@@ -115,8 +190,23 @@ public class TestMaze {
 	@Test
 	public void stressTestSmallNDenseGraph(){
 		resetLayout();
-		n = 40;
-		buildLayout(n, 0.85, true);
+		n = 34;
+		buildLayout(n, 0.6, true);
+		resetMaze();
+		Path shortest = m.shortestPath(true);
+		Pillar end = new Pillar(n-1,n-1);
+		assertTrue(expectedShortest.isSameDistance(shortest));
+		assertTrue(pathIsValid(shortest,end));
+	}
+	
+	/**
+	 * Stress test where n and density are both middle-ish values
+	 */
+	@Test
+	public void stressTestMiddleOfTheRoad(){
+		resetLayout();
+		n = 200;
+		buildLayout(n, 0.30, true);
 		resetMaze();
 		Path shortest = m.shortestPath(true);
 		Pillar end = new Pillar(n-1,n-1);
@@ -248,45 +338,8 @@ public class TestMaze {
 		assertEquals(new Pillar(0,0), t.getCurPil());
 		assertEquals(new Path(), t.getCurPath());
 	}
-
-	public void buildLayout(int n2, double density, boolean usePlank){
-		Pillar lastPillar = new Pillar(0,0);
-		expectedShortest.addPillar(lastPillar);
-		for(int i = 0; i < 2*(n2 - 1) ; i++){
-			Pillar nextPillar = null;
-			if(lastPillar.getXCor() < n2 - 1 && lastPillar.getYCor() < n2 -1){
-				nextPillar = r.nextBoolean() ? new Pillar(lastPillar.getXCor() + 1, lastPillar.getYCor()) :
-												new Pillar(lastPillar.getXCor(), lastPillar.getYCor() + 1);
-			}else if(lastPillar.getXCor() < n2 - 1){
-				nextPillar = new Pillar(lastPillar.getXCor() + 1, lastPillar.getYCor());
-			}else if(lastPillar.getYCor() < n2 - 1){
-				nextPillar = new Pillar(lastPillar.getXCor() , lastPillar.getYCor() + 1);
-			}
-			Plank p = new Plank(lastPillar, nextPillar);
-			if(!(usePlank && i == n2/2)){
-				layout.add(p);
-			}else{
-				expectedShortest.setPlank(p);
-			}
-			expectedShortest.addPillar(nextPillar);
-			lastPillar = nextPillar;
-		}
-		
-		//Add more planks proportional to density
-		int edgesToAdd = (int) Math.floor( ((((n2 - 1)*n2)^2) * 1.0) * density);
-		for(int i = 0; i < edgesToAdd; i++){
-			Pillar start = new Pillar(r.nextInt(n2), r.nextInt(n2));
-			List<Pillar> adjacent = start.adjoiningPillars(true, new HashSet<Plank>(), n2-1);
-			int choose = r.nextInt(adjacent.size());
-			Pillar end = adjacent.get(choose);
-			Plank toAdd = new Plank(start,end);
-			if(layout.contains(toAdd)){
-				i--;
-			}else{
-				layout.add(toAdd);
-			}
-		}
-	}
+	
+	
 	
 	/**
 	 * Structured Basis
@@ -463,7 +516,7 @@ public class TestMaze {
 		pPrime.addPillar(new Pillar(0,1));
 		Path[] ret = t.testCheckIfResultShortest(pPrime, expectedShortest, 1);
 		assertEquals(pPrime, ret[0]);
-		assertEquals(expectedShortest, ret[1]);
+		assertEquals(pPrime, ret[1]);
 	}
 	
 	/**
