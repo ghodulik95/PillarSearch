@@ -18,17 +18,25 @@ public class TestPath {
 	private Path.TestButton t;
 	
 	/**
-	 * Test the nominal and only case of the constructor
+	 * Initialize
 	 */
-	@Before @Test
-	public void testConstructor(){
+	@Before
+	public void initialize(){
 		p = new Path();
 		t = p.new TestButton();
+	}
+	
+	/**
+	 * Test the nominal and only case of the constructor
+	 */
+	@Test
+	public void testConstructor(){
 		assertTrue(p.isSameDistance(-1));
 		assertTrue(t.getPillars().isEmpty());
 		assertTrue(t.getPPath().isEmpty());
 		assertTrue(p.getPlank() == null);
 	}
+	
 	
 	/**
 	 * Structural Basis

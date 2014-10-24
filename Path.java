@@ -1,4 +1,5 @@
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -201,5 +202,14 @@ public class Path {
 		public void testCheckNull(Object o){
 			Path.this.checkNull(o);
 		}
+	}
+
+	public Path copy() {
+		Path r = new Path();
+		Iterator<Pillar> i = ppath.listIterator();
+		while(i.hasNext()){
+			r.addPillar(i.next());
+		}
+		return r;
 	}
 }

@@ -90,11 +90,13 @@ public class TestPlank {
 	 */
 	@Test
 	public void testHashCode(){
-		Plank p1 = new Plank(new Pillar(0,1), new Pillar(1,1));
-		Plank p2 = new Plank(new Pillar(1,1), new Pillar(0,1));
-		assertTrue(p.hashCode() == p1.hashCode());
-		assertTrue(p1.hashCode() == p2.hashCode());
-		assertTrue(p.hashCode() == p2.hashCode());
+		for(int i = 0; i < 50; i++){
+			Plank p1 = new Plank(new Pillar(0,1), new Pillar(1,1));
+			Plank p2 = new Plank(new Pillar(1,1), new Pillar(0,1));
+			assertTrue(p.hashCode() == p1.hashCode());
+			assertTrue(p1.hashCode() == p2.hashCode());
+			assertTrue(p.hashCode() == p2.hashCode());
+		}
 	}
 	
 	/**

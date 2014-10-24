@@ -56,6 +56,16 @@ public class Plank {
 		return connected.hashCode();
 	}
 	
+	@Override
+	public String toString(){
+		String out = "[";
+		for(Pillar p: connected){
+			out += p.toString();
+		}
+		out += "]";
+		return out;
+	}
+	
 	/**
 	 * A test button for junit testing
 	 * @author gmh73
